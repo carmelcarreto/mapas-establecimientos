@@ -55,9 +55,13 @@ class UI{
                 parseFloat(latitude),
                 parseFloat(longitude)
             ]).bindPopup(opcionesPopUp);
-            
+
             this.markers.addLayer(marker);
         });
         this.markers.addTo(this.mapa);
+    }
+    //buscador
+    obtenerSugerencias(busqueda){
+        
     }
 }
