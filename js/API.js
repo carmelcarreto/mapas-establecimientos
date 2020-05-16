@@ -3,7 +3,7 @@ class API {
 
     async obtenerDatos() {
 
-        const total = 11000;
+        const total = 5000;
 
          // Obtener los datos desde la api
          const datos = await fetch(`https://api.datos.gob.mx/v1/precio.gasolina.publico?pageSize=${total}`);
