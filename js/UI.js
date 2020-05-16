@@ -1,67 +1,94 @@
-class UI{
-    constructor(){
-
-        //Instanciar la API
+class UI {
+    constructor() {
+        // Instanciar la API
         this.api = new API();
 
-        //Crear los markers con layerGroup
+        // Crear los mapas en un grupo
         this.markers = new L.LayerGroup();
 
-        //Iniciar el mapa
+        // Iniciar el mapa
         this.mapa = this.inicializarMapa();
+
     }
-    inicializarMapa(){
-        //Inicializar y obtener la propiedad del mapa
+
+    inicializarMapa() {
+
+
+        // Inicializar y obtener la propiedad del mapa
+
         const map = L.map('mapa').setView([19.390519, -99.3739778], 6);
 
-        const enlaceMapa = '<a href= "http://openstreetmap.org">OpenStreetMap</a>';
+        const enlaceMapa = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
 
         L.tileLayer(
-            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-                attribution: 'o ' + enlaceMapa + 'Contributors',
+            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; ' + enlaceMapa + ' Contributors',
                 maxZoom: 18,
             }).addTo(map);
 
-            return map;
+        return map;
+
     }
 
-    mostrarEstablecimientos(){
+    // Mostrar Establecimientos de la api
+    mostrarEstablecimientos() {
         this.api.obtenerDatos()
             .then(datos => {
                 const resultado = datos.respuestaJSON.results;
-                //Ejecutar la funcion para mostrar los pines
+                // Muestra los pines en el Mapa
                 this.mostrarPines(resultado);
             })
     }
+    // Muestra los pines
+    mostrarPines(datos) {
 
-    mostrarPines(datos){
-        //Limpiar los markers
         this.markers.clearLayers();
 
-        //recorrer los establecimientos
-        datos.forEach(dato =>{
-            //destructuring
-            const {latitude, longitude, calle, regular, premium } = dato;
+        // Recorrer establecimientos
+        datos.forEach(dato => {
+            // Destucturing 
+            const {
+                latitude,
+                longitude,
+                calle,
+                regular,
+                premium
+            } = dato;
 
-            //Crear Popup
             const opcionesPopUp = L.popup()
-                .setContent(`<p>Calle: ${calle}</p>
-                            <p><b>Regular:</b>$ ${regular}</p>
-                            <p><b>Premium:</b>$ ${premium}</p>
-                `);
+                .setContent(`<p>Calle: ${calle}</p> 
+                            <p></p><b>Regular:</b>$ ${regular}</p>
+                            <p> <b>Premium:</b>$ ${premium}</p>`);
 
-            //agregar el PIN
+            // Agregar el Pin
             const marker = new L.marker([
-                parseFloat(latitude),
-                parseFloat(longitude)
-            ]).bindPopup(opcionesPopUp);
+                    parseFloat(latitude),
+                    parseFloat(longitude)
+                ])
+                .bindPopup(opcionesPopUp)
 
             this.markers.addLayer(marker);
         });
-        this.markers.addTo(this.mapa);
+        this.markers.addTo(this.mapa)
     }
-    //buscador
-    obtenerSugerencias(busqueda){
-        
+
+    // Obtiene las sugerencias de la REST API
+    obtenerSugerencias(busqueda) {
+        this.api.obtenerDatos()
+            .then(datos => {
+                // Obtener los resultados
+                const resultados = datos.respuestaJSON.results;
+
+                // Enviar el JSON y la busqueda al Filtro
+                this.filtrarSugerencias(resultados, busqueda);
+            })
+    }
+
+    // Filtrar las sugerencias de busqueda
+    filtrarSugerencias(resultados, busqueda) {
+        const filtro = resultados.filter(filtro => filtro.calle.indexOf(busqueda) !== -1);
+
+        // Mostrar pines del Filtro
+        this.mostrarPines(filtro);
     }
 }
